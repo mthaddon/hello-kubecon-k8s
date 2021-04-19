@@ -47,7 +47,7 @@ $ juju add-model kubecon
 # Deploy!
 $ juju deploy ./hello-kubecon.charm \
     --resource gosherve-image=jnsgruk/gosherve:latest \
-    --config gist_url="<some redirect map url>"
+    --config redirect-map="<some redirect map url>"
 
 $ cd ..
 # Clone the ingress charm
