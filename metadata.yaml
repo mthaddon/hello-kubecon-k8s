@@ -1,0 +1,31 @@
+# Copyright 2021 Jon Seager
+# See LICENSE file for licensing details.
+name: hello-kubecon
+description: |
+  TEMPLATE-TODO: fill out the charm's description
+summary: |
+  TEMPLATE-TODO: fill out the charm's summary
+
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+
+containers:
+  gosherve:
+    resource: gosherve-image
+    mounts:
+      - storage: webroot
+        location: /srv
+
+resources:
+  gosherve-image:
+    type: oci-image
+    description: Docker image for Gosherve
+
+storage:
+  webroot:
+    type: filesystem
+
+requires:
+  ingress:
+    interface: ingress

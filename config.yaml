@@ -1,0 +1,7 @@
+# Copyright 2021 Jon Seager
+# See LICENSE file for licensing details.
+
+options:
+  redirect-map:
+    default: ""
+    description: URL to a redirect map for Gosherve

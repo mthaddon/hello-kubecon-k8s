@@ -1,0 +1,5 @@
+# Copyright 2021 Jon Seager
+# See LICENSE file for licensing details.
+
+pull-site:
+  description: Unpack latest version of website from remote source.
