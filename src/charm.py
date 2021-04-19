@@ -38,7 +38,6 @@ class HelloKubeconCharm(CharmBase):
 
         self.ingress = IngressRequires(self, {
             "service-hostname": "hellokubecon.juju",
-            "ingress-class": "public",
             "service-name": self.app.name,
             "service-port": 8080
         })
