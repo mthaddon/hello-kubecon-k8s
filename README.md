@@ -9,7 +9,8 @@ Overview of features:
 - Charm container put the contents of the archive in a storage volume
 - Once a `redirect-map` config item is set, `gosherve` is started
 - There is a `pull-site` action which will pull the latest version of the test site and extract it
-- Ingress relation is implemented and creates an ingress of class "public" and hostname "hellokubecon.juju"
+- Ingress relation is implemented and creates a hostname "hellokubecon.juju"
+- Since we're deploying on microk8s we set the ingress-class to "public"
 
 ### Deployment
 
@@ -55,8 +56,8 @@ $ git clone https://git.launchpad.net/charm-k8s-ingress
 $ cd charm-k8s-ingress
 # Build the ingress charm
 $ charmcraft build
-# Deploy the ingress charm
-$ juju deploy ./nginx-ingress-integrator --config kube-config="$(microk8s config)"
+# Deploy the ingress charm (with appropriate ingress-class for microk8s)
+$ juju deploy ./nginx-ingress-integrator.charm --config kube-config="$(microk8s config)" --config ingress-class=public
 # Relate our app to the ingress
 $ juju relate hello-kubecon nginx-ingress-integrator
 # Add an entry to /etc/hosts
