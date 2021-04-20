@@ -35,7 +35,17 @@ class TestCharm(unittest.TestCase):
             },
         }
         self.assertEqual(self.harness.charm._gosherve_layer(), expected)
+        # And now test with a different value in the redirect-map config option.
+        # Disable hook firing first.
         self.harness.disable_hooks()
         self.harness.update_config({"redirect-map": "test value"})
         expected["services"]["gosherve"]["environment"]["REDIRECT_MAP_URL"] = "test value"
         self.assertEqual(self.harness.charm._gosherve_layer(), expected)
+
+    def test_on_config_changed(self):
+        plan = self.harness.get_container_pebble_plan("gosherve")
+        self.assertEqual(plan.to_yaml(), "{}\n")
+        # Trigger a config-changed hook.
+        self.harness.update_config({"redirect-map": "test value"})
+        plan = self.harness.get_container_pebble_plan("gosherve")
+        self.assertEqual(plan.to_yaml(), "{}\n")
