@@ -1,2 +1,8 @@
-build/
+*~
+*swp
 *.charm
+.tox
+.coverage
+__pycache__
+build
+venv

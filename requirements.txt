@@ -1,1 +1,2 @@
-https://github.com/canonical/operator/archive/refs/heads/master.zip
+https://codeload.github.com/canonical/operator/zip/fd0617ad1473c28f3819ccc74c567f24533bb73d
+# https://github.com/canonical/operator/archive/refs/heads/master.zip

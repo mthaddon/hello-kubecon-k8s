@@ -4,34 +4,38 @@
 # Learn more about testing at: https://juju.is/docs/sdk/testing
 
 import unittest
-from unittest.mock import Mock
+# from unittest.mock import Mock
 
 from ops.testing import Harness
 from charm import HelloKubeconCharm
 
 
 class TestCharm(unittest.TestCase):
-    def test_config_changed(self):
-        harness = Harness(HelloKubeconCharm)
-        self.addCleanup(harness.cleanup)
-        harness.begin()
-        self.assertEqual(list(harness.charm._stored.things), [])
-        harness.update_config({"thing": "foo"})
-        self.assertEqual(list(harness.charm._stored.things), ["foo"])
+    def setUp(self):
+        self.harness = Harness(HelloKubeconCharm)
+        self.harness.begin()
 
-    def test_action(self):
-        harness = Harness(HelloKubeconCharm)
-        harness.begin()
-        # the harness doesn't (yet!) help much with actions themselves
-        action_event = Mock(params={"fail": ""})
-        harness.charm._on_fortune_action(action_event)
-
-        self.assertTrue(action_event.set_results.called)
-
-    def test_action_fail(self):
-        harness = Harness(HelloKubeconCharm)
-        harness.begin()
-        action_event = Mock(params={"fail": "fail this"})
-        harness.charm._on_fortune_action(action_event)
-
-        self.assertEqual(action_event.fail.call_args, [("fail this",)])
+    def test_gosherve_layer(self):
+        # Test with empty config.
+        self.assertEqual(self.harness.charm.config['redirect-map'], '')
+        expected = {
+            "summary": "gosherve layer",
+            "description": "pebble config layer for gosherve",
+            "services": {
+                "gosherve": {
+                    "override": "replace",
+                    "summary": "gosherve service",
+                    "command": "/gosherve",
+                    "startup": "enabled",
+                    "environment": {
+                        "REDIRECT_MAP_URL": "",
+                        "WEBROOT": "/srv/hello-kubecon",
+                    },
+                }
+            },
+        }
+        self.assertEqual(self.harness.charm._gosherve_layer(), expected)
+        self.harness.disable_hooks()
+        self.harness.update_config({"redirect-map": "test value"})
+        expected["services"]["gosherve"]["environment"]["REDIRECT_MAP_URL"] = "test value"
+        self.assertEqual(self.harness.charm._gosherve_layer(), expected)
