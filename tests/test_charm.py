@@ -91,7 +91,6 @@ class TestCharm(unittest.TestCase):
             }
         }
         self.assertEqual(plan.to_yaml(), yaml.dump(expected))
-        # Because is_running was True, confirm we called start and stop.
         self.assertEqual(container.get_service("gosherve").is_running(), True)
         self.assertEqual(self.harness.model.unit.status, ActiveStatus())
 
