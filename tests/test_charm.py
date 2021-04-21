@@ -44,22 +44,12 @@ class TestCharm(unittest.TestCase):
         expected["services"]["gosherve"]["environment"]["REDIRECT_MAP_URL"] = "test value"
         self.assertEqual(self.harness.charm._gosherve_layer(), expected)
 
-    @patch('ops.model.Container.get_service')
-    @patch('ops.model.Container.start')
-    @patch('ops.model.Container.stop')
-    def test_on_config_changed(self, _stop, _start, _get_service):
-        class FakeService:
-            def __init__(self, is_running_bool):
-                self.is_running_bool = is_running_bool
-
-            def is_running(self):
-                return self.is_running_bool
-
-        _get_service.return_value = FakeService(False)
-
+    def test_on_config_changed(self):
         plan = self.harness.get_container_pebble_plan("gosherve")
         self.assertEqual(plan.to_yaml(), "{}\n")
-        # Trigger a config-changed hook.
+        # Trigger a config-changed hook. Since there was no plan initially, the
+        # "gosherve" service in the container won't be running so we'll be
+        # testing the `is_running() == False` codepath.
         self.harness.update_config({"redirect-map": "test value"})
         plan = self.harness.get_container_pebble_plan("gosherve")
         expected = {
@@ -77,15 +67,13 @@ class TestCharm(unittest.TestCase):
             }
         }
         self.assertEqual(plan.to_yaml(), yaml.dump(expected))
-        # Because is_running was False, confirm we called start, but not stop.
-        _start.assert_called_once
-        _stop.assert_not_called
         self.assertEqual(self.harness.model.unit.status, ActiveStatus())
+        container = self.harness.model.unit.get_container("gosherve")
+        self.assertEqual(container.get_service("gosherve").is_running(), True)
 
-        # Now test with is_running == True.
-        _start.reset_mock()
-        _stop.reset_mock()
-        _get_service.return_value = FakeService(True)
+        # Now test again with different config, knowing that the "gosherve"
+        # service is running (because we've just tested it above), so we'll
+        # be testing the `is_running() == True` codepath.
         self.harness.update_config({"redirect-map": "test2 value"})
         plan = self.harness.get_container_pebble_plan("gosherve")
         expected = {
@@ -104,8 +92,7 @@ class TestCharm(unittest.TestCase):
         }
         self.assertEqual(plan.to_yaml(), yaml.dump(expected))
         # Because is_running was True, confirm we called start and stop.
-        _start.assert_called_once
-        _stop.assert_called_once
+        self.assertEqual(container.get_service("gosherve").is_running(), True)
         self.assertEqual(self.harness.model.unit.status, ActiveStatus())
 
         # Now test with empty config. Confirm that _gosherve_layer isn't called.
